@@ -1,30 +1,30 @@
 close all
 T = 295;
 C = getC('Au',T);
-kz = 10;%phonon thermal conductivity of metal part
+kz = 2;%phonon thermal conductivity of metal part
 
 
 
 wmin = 5e2;
 wmax = 5e7;
-nw = 40;
+nw = 100;
 omega = exp(linspace(log(wmin),log(wmax),nw))*2*pi;
 
-w0 = 3e-6;%radius
-w1 = 3e-6;
+w0 = 3.11e-6;%radius
+w1 = 3.11e-6;
 
 alp = 1/(16e-9);
 gamma = 1/(17e-9);
 
 Ce = 1.0e4;%electron volumetric heat capacity [J/m3K]
 C = C - Ce;%phonon volumetric heat capacity [J/m3K]
-kez = 180 - kz;%electron thermal conductivity of metal part
-g = 2.2e16;%volumetric heating rate of electrons on the same side[W/m3K]
+kez = 200 - kz;%electron thermal conductivity of metal part
+g = 1e16;%volumetric heating rate of electrons on the same side[W/m3K]
 
-L = [100e-9 1e-3];
+L = [120e-9 1e-3];
 Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
-Gpp = 1e8;%phonon-phonon conductance
-k2x = 135;%second layer - substate / in-plane thermal conductivity
+Gpp = 1.3e8;%phonon-phonon conductance
+k2x = 133;%second layer - substate / in-plane thermal conductivity
 k2z = k2x;%substrate / cross-place thermal conductivity
 C2 = getC('Si',T);
 %g = 5e12;
@@ -33,20 +33,31 @@ C2 = getC('Si',T);
 data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
 amp = reshape(data(1,1,:,1),[length(omega) 1]);
 
-data1 = get_data('/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_0nmTi_100nmAu_50_Measurement_3_3.11um_17.29mW_21.81C_Sweep_2.txt');
+data1 = get_data('/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_5nmTi_25_100nmAu_50_Measurement_3_3.1um_17.29mW_21.77C_Sweep_2.txt');
 figure(1)
 hold on
-plot(omega/2/pi,amp/amp(1),'LineStyle','-','DisplayName','w/o G_{ep}','LineWidth',1.5)
+plot(data1(:,1),data1(:,2)/data1(1,2),'o')
+plot(omega/2/pi,amp/amp(1),'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
 set(gca, 'XScale', 'log')
-xlabel('Frequency (Hz)')
+xlabel('Frequency (Hz)','')
 ylabel('Amplitude')
 figure(2)
 hold on
 plot(data1(:,1),data1(:,3),'o')
-plot(omega/2/pi,reshape(data(1,1,:,2),[length(omega) 1]),'LineStyle','-','DisplayName','w/o G_{ep}','LineWidth',1.5)
+plot(omega/2/pi,reshape(data(1,1,:,2),[length(omega) 1]),'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
 set(gca, 'XScale', 'log')
 xlabel('Frequency (Hz)')
 ylabel('Phase (deg)')
+
+% g = 7e16;
+% data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
+% amp = reshape(data(1,1,:,1),[length(omega) 1]);
+% figure(1)
+% plot(omega/2/pi,amp/amp(1),'LineStyle','--','DisplayName','no e-p','LineWidth',3)
+% figure(2)
+% plot(omega/2/pi,reshape(data(1,1,:,2),[length(omega) 1]),'LineStyle','--','DisplayName','no e-p','LineWidth',3)
+% legend show
+
 
 % tdelay = linspace(500e-12,8e-9,100);
 % datat = return_tdtr_real_space_layer_ttm(tdelay,6e6*2*pi,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);

@@ -3,51 +3,69 @@ T = 295;
 C = getC('Au',T);
 kz = 2;%phonon thermal conductivity of metal part
 
-
+global N_imag_layer
+N_imag_layer = 1; % increase this number if you find numerical instability
 
 wmin = 5e2;
 wmax = 5e7;
 nw = 100;
 omega = exp(linspace(log(wmin),log(wmax),nw))*2*pi;
 
-w0 = 3.11e-6;%radius
-w1 = 3.11e-6;
+w0 = 3.12e-6;%radius
+w1 = 3.12e-6;
 
-alp = 1/(16e-9);
+CTR = 3e-4;
+alp = 1/(17e-9);
 gamma = 1/(17e-9);
+TLAbs = 0.610;
 
-Ce = 1.0e4;%electron volumetric heat capacity [J/m3K]
+Ce = 1e4;%electron volumetric heat capacity [J/m3K]
 C = C - Ce;%phonon volumetric heat capacity [J/m3K]
-kez = 200 - kz;%electron thermal conductivity of metal part
-g = 1e16;%volumetric heating rate of electrons on the same side[W/m3K]
-
+kez = 195 - kz;%electron thermal conductivity of metal part
+g = 3e16;%volumetric heating rate of electrons on the same side[W/m3K]
 L = [120e-9 1e-3];
+fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_1nmTi_25_100nmAu_50_Measurement_1_3.12um_17.29mW_21.78C_Sweep_2.txt';
+
 Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
-Gpp = 1.3e8;%phonon-phonon conductance
-k2x = 133;%second layer - substate / in-plane thermal conductivity
-k2z = k2x;%substrate / cross-place thermal conductivity
-C2 = getC('Si',T);
+Gpp = 1e8;%phonon-phonon conductance
+k2x = 125;%substrate / cross-place thermal conductivity
+k2z = k2x;%second layer - substate / in-plane thermal conductivity
+C2 = getC(['Si'],T);
 %g = 5e12;
 
+% Ce = 1e4;%electron volumetric heat capacity [J/m3K]
+% C = C - Ce;%phonon volumetric heat capacity [J/m3K]
+% kez = 195 - kz;%electron thermal conductivity of metal part
+% g = 3e15;%volumetric heating rate of electrons on the same side[W/m3K]
+% L = [120e-9 1e-3];
+% fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_1nmTi_25_100nmAu_50_Measurement_1_3.12um_17.29mW_21.78C_Sweep_2.txt';
+% 
+% Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
+% Gpp = 1e8;%phonon-phonon conductance
+% k2z = 195;%substrate / cross-place thermal conductivity
+% k2x = k2z;%second layer - substate / in-plane thermal conductivity
+% C2 = getC(['Si'],T);
 
 data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
 amp = reshape(data(1,1,:,1),[length(omega) 1]);
 
-data1 = get_data('/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_5nmTi_25_100nmAu_50_Measurement_3_3.1um_17.29mW_21.77C_Sweep_2.txt');
+data1 = get_data(fname);
+power = get_power(fname)*TLAbs;%[W]
+
 figure(1)
 hold on
-plot(data1(:,1),data1(:,2)/data1(1,2),'o')
-plot(omega/2/pi,amp/amp(1),'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
-set(gca, 'XScale', 'log')
-xlabel('Frequency (Hz)','')
-ylabel('Amplitude')
+plot(data1(:,1),data1(:,2),'o')
+plot(omega/2/pi,amp*power*CTR,'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
+set(gca, 'XScale', 'log','FontSize',14)
+xlabel('Frequency (Hz)','FontSize',18)
+ylabel('Amplitude','FontSize',18)
 figure(2)
 hold on
 plot(data1(:,1),data1(:,3),'o')
 plot(omega/2/pi,reshape(data(1,1,:,2),[length(omega) 1]),'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
-set(gca, 'XScale', 'log')
-xlabel('Frequency (Hz)')
-ylabel('Phase (deg)')
+set(gca, 'XScale', 'log','FontSize',14)
+xlabel('Frequency (Hz)','FontSize',18)
+ylabel('Phase (deg)','FontSize',18)
 
 % g = 7e16;
 % data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);

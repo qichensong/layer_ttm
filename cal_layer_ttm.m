@@ -14,7 +14,7 @@ omega = exp(linspace(log(wmin),log(wmax),nw))*2*pi;
 w0 = 3.12e-6;%radius
 w1 = 3.12e-6;
 
-CTR = 3e-4;
+CTR = 3.54e-4;
 alp = 1/(17e-9);
 gamma = 1/(17e-9);
 TLAbs = 0.610;
@@ -22,12 +22,12 @@ TLAbs = 0.610;
 Ce = 1e4;%electron volumetric heat capacity [J/m3K]
 C = C - Ce;%phonon volumetric heat capacity [J/m3K]
 kez = 195 - kz;%electron thermal conductivity of metal part
-g = 3e16;%volumetric heating rate of electrons on the same side[W/m3K]
-L = [120e-9 1e-3];
+g = 5e16;%volumetric heating rate of electrons on the same side[W/m3K]
+L = [116e-9 1e-3];
 fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_1nmTi_25_100nmAu_50_Measurement_1_3.12um_17.29mW_21.78C_Sweep_2.txt';
 
 Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
-Gpp = 1e8;%phonon-phonon conductance
+Gpp = 1.1e8;%phonon-phonon conductance
 k2x = 125;%substrate / cross-place thermal conductivity
 k2z = k2x;%second layer - substate / in-plane thermal conductivity
 C2 = getC(['Si'],T);
@@ -46,23 +46,68 @@ C2 = getC(['Si'],T);
 % k2x = k2z;%second layer - substate / in-plane thermal conductivity
 % C2 = getC(['Si'],T);
 
-data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
-amp = reshape(data(1,1,:,1),[length(omega) 1]);
 
-data1 = get_data(fname);
+
+data1 = get_data(fname);% load experimental curve
 power = get_power(fname)*TLAbs;%[W]
+
+fit_type = "both";
+param = [w0,C,kz,kz,alp,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2,CTR];
+param_fit = [13,17];
+var_fit = [13];
+var_p = 0.20;
+x0 = [5e7,3e-4];
+xu = 10*x0;
+xl = 0.1*x0;
+options = optimset('TolFun',1e-3,'Display','off','TolX',1e-3);
+fh=  @(x) dif_te(x,param_fit,data1(:,1)*2*pi,data1(:,2),data1(:,3),param,power,fit_type);
+xx = lsqnonlin(fh,x0,xl,xu,options);
+
+param1 = param;
+for i = 1:length(param_fit)
+    param1(param_fit(i)) = xx(i); % update using the best fits
+end
+[w0,C,kx,kz,alp,Ce,kex,kez,g,L,Gep,Gpp,k2x,k2z,C2,CTR]=unpack_param(param1);
+param2 = param1;
+param2(var_fit) = param2(var_fit)*(1-var_p); 
+param3 = param1;
+param3(var_fit) = param3(var_fit)*(1+var_p);
+
+
+data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+amp = reshape(data(1,1,:,1),[length(omega) 1]);
+phase = reshape(data(1,1,:,2),[length(omega) 1]);
+data0 = return_data_real_space(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+
+
+
+[w0,C,kx,kz,alp,Ce,kex,kez,g,L,Gep,Gpp,k2x,k2z,C2,CTR]=unpack_param(param2);
+data_lower = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+amp_lower = reshape(data_lower(1,1,:,1),[length(omega) 1]);
+phase_lower = reshape(data_lower(1,1,:,2),[length(omega) 1]);
+[w0,C,kx,kz,alp,Ce,kex,kez,g,L,Gep,Gpp,k2x,k2z,C2,CTR]=unpack_param(param3);
+data_higher = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+amp_higher = reshape(data_higher(1,1,:,1),[length(omega) 1]);
+phase_higher = reshape(data_higher(1,1,:,2),[length(omega) 1]);
+
 
 figure(1)
 hold on
 plot(data1(:,1),data1(:,2)/CTR,'o')
+plot(omega/2/pi,data0(:,1)*power)
 plot(omega/2/pi,amp*power,'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
+plot(omega/2/pi,amp_lower*power,'LineStyle','--','DisplayName','with e-p','LineWidth',1.5)
+plot(omega/2/pi,amp_higher*power,'LineStyle','-.','DisplayName','with e-p','LineWidth',1.5)
 set(gca, 'XScale', 'log','FontSize',14)
 xlabel('Frequency (Hz)','FontSize',18)
 ylabel('Amplitude (K)','FontSize',18)
 figure(2)
 hold on
 plot(data1(:,1),data1(:,3),'o')
-plot(omega/2/pi,reshape(data(1,1,:,2),[length(omega) 1]),'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
+plot(omega/2/pi,data0(:,2))
+plot(omega/2/pi,phase,'LineStyle','-','DisplayName','with e-p','LineWidth',1.5)
+plot(omega/2/pi,phase_lower,'LineStyle','--','DisplayName','with e-p','LineWidth',1.5)
+plot(omega/2/pi,phase_higher,'LineStyle','-.','DisplayName','with e-p','LineWidth',1.5)
 set(gca, 'XScale', 'log','FontSize',14)
 xlabel('Frequency (Hz)','FontSize',18)
 ylabel('Phase (deg)','FontSize',18)

@@ -3,7 +3,8 @@ T = 295;
 C = getC('Al',T);
 kz = 10;
 
-
+global N_imag_layer
+N_imag_layer = 3; % increase this number if you find numerical instability
 
 wmin = 5e3;
 wmax = 5e9;
@@ -20,8 +21,8 @@ Ce = 3e4;
 kez = getk('Al',T)-10;
 g = 5e16;
 
-L = [100e-9 1e-3];
-Gep = 1e2;
+L = [600e-9 1e0];
+Gep = 0;
 Gpp = 3e8;
 k2x = getk('Si',T);
 k2z = getk('Si',T);
@@ -64,7 +65,7 @@ ylabel('Phase (deg)')
 
 
 
-Gep1 = 3e8;
+Gep1 = 5e8;
 
 
 data = return_data_real_space_layer_ttm(omega,w0,w1,[0],[0],C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep1,Gpp,k2x,k2z,C2);
@@ -101,7 +102,7 @@ for i = 1:4
 end
 
 
-zz = linspace(0,100e-9,300);
+zz = linspace(0,L(1),600);
 zz2 = linspace(0,100e-9,200);
 [te,tp,t2]=return_data_real_space_z_layer_ttm(omega,w0,w1,[0],[0],zz,zz2,C,kz,kz,alp,gamma,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
 figure(5)

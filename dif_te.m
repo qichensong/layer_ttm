@@ -1,4 +1,5 @@
 function y = dif_te(x,param_fit,omega,amp,phase,param0,power,fit_type)
+global Isotropic
 param = param0;
 for i = 1:length(param_fit)
     param(param_fit(i)) = x(i);
@@ -20,8 +21,15 @@ k2x = param(14);
 k2z = param(15);
 C2 = param(16);
 CTR = param(17);
-
-data = return_data_real_space_layer_ttm(omega,w0,w0,[0],[0],C,kz,kz,alp,alp,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+if Isotropic(1) == 1 && Isotropic(2) == 1
+    data = return_data_real_space_layer_ttm(omega,w0,w0,[0],[0],C,kz,kz,alp,alp,Ce,kez,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+elseif Isotropic(1) == 0 && Isotropic(2) == 1
+    data = return_data_real_space_layer_ttm(omega,w0,w0,[0],[0],C,kx,kz,alp,alp,Ce,kex,kez,g,L,Gep,Gpp,k2z,k2z,C2);
+elseif Isotropic(1) == 1 && Isotropic(2) == 0
+    data = return_data_real_space_layer_ttm(omega,w0,w0,[0],[0],C,kz,kz,alp,alp,Ce,kez,kez,g,L,Gep,Gpp,k2x,k2z,C2);
+else
+    data = return_data_real_space_layer_ttm(omega,w0,w0,[0],[0],C,kx,kz,alp,alp,Ce,kex,kez,g,L,Gep,Gpp,k2x,k2z,C2);
+end
 phase_t = reshape(data(1,1,:,2),[length(omega) 1]);
 amp_t = reshape(data(1,1,:,1),[length(omega) 1])*power; % in unit of K
 if fit_type == "both"

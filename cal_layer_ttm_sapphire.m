@@ -19,48 +19,16 @@ alp = 1/(17e-9);
 gamma = 1/(17e-9);
 TLAbs = 0.610;
 
-% For Si substrate
-
-% Ce = 1e4;%electron volumetric heat capacity [J/m3K]
-% C = C - Ce;%phonon volumetric heat capacity [J/m3K]
-% kez = 195 - kz;%electron thermal conductivity of metal part
-% g = 2.2e16;%volumetric heating rate of electrons on the same side[W/m3K]
-% L = [116e-9 1e-3];
-% fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_2nmTi_25_100nmAu_50_Measurement_1_3.14um_17.29mW_21.88C_Sweep_2.txt';
-% 
-% Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
-% Gpp = 1e8;%phonon-phonon conductance
-% k2x = 135;%substrate / in-plane thermal conductivity
-% k2z = k2x;%second layer - substate / cross-place thermal conductivity
-% C2 = getC(['Si'],T);
-
-
-% For fused silica (SiO2)
-
-% Ce = 1e4;%electron volumetric heat capacity [J/m3K]
-% C = C - Ce;%phonon volumetric heat capacity [J/m3K]
-% kez = 195 - kz;%electron thermal conductivity of metal part
-% kex = kez;
-% g = 1e16;%volumetric heating rate of electrons on the same side[W/m3K]
-% L = [116e-9 1e-3];
-% fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/fusedSi_1nmTi_25_100nmAu_50_Measurement_1_3.09um_3.72mW_21.78C_Sweep_2.txt';
-% 
-% Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
-% Gpp = 6e7;%phonon-phonon conductance
-% k2x = 1.2967;%substrate / in-plane thermal conductivity
-% k2z = k2x;%second layer - substate / cross-place thermal conductivity
-% C2 = getC(['SiO2'],T);
-
 
 % For sapphire
 
 Ce = 1e4;%electron volumetric heat capacity [J/m3K]
 C = C - Ce;%phonon volumetric heat capacity [J/m3K]
 kez = 195 - kz;%electron thermal conductivity of metal part
-g = 3e15;%volumetric heating rate of electrons on the same side[W/m3K]
+g = 2.2e16;%volumetric heating rate of electrons on the same side[W/m3K]
 L = [120e-9 1e-3];
 Isotropic = [1 0]; % istropic 1, anisotropic 0;
-fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100522_Au films with Qichen/Si_1nmTi_25_100nmAu_50_Measurement_1_3.12um_17.29mW_21.78C_Sweep_2.txt';
+fname = '/Users/60.moon/Desktop/Research/Thermal conductivity/FDTR/100122_Au film test with various substrate/sapphire_100nmgold_sputter_Measurement_1_3.12um_9.39mW_21.78C_Sweep_2.txt';
 
 Gep = 0;%thermal conductance of electrons on the metal side coupled with phonons on the semiconductor side
 Gpp = 1e8;%phonon-phonon conductance
@@ -83,6 +51,7 @@ xl = 0.1*x0;
 options = optimset('TolFun',1e-3,'Display','off','TolX',1e-3);
 fh=  @(x) dif_te(x,param_fit,data1(:,1)*2*pi,data1(:,2),data1(:,3),param,power,fit_type);
 xx = lsqnonlin(fh,x0,xl,xu,options);
+
 for ix = 1:length(xx)
     disp(xx(ix))
 end
